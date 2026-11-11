@@ -105,6 +105,15 @@ See [LIMITATIONS.md](LIMITATIONS.md) before interpreting any result.
 
 This work is **not** presented as a new physical law. In particular, Loiez & Taillibert (1997) used integrated differential constraints and bounded observation representations for diagnosis; de Kleer & Williams (1987) developed conflict-based multiple-fault diagnosis; and existing thermocouple literature studies first-order response dynamics. See [REFERENCES.md](REFERENCES.md) and the [novelty audit](CIFC_novelty_audit_2026-11-11.md).
 
+## Academic publication preparation (not submitted)
+
+The Zenodo software release is an archive, **not** a peer-reviewed research paper. We are preparing separate, preliminary manuscript drafts:
+
+- **[arXiv draft and preparation notes](papers/arxiv/README.md)** — [LaTeX manuscript source](papers/arxiv/main.tex); not submitted and requires independent scientific review.
+- **[JOSS preparation notes](papers/joss/README.md)** — [JOSS-formatted manuscript draft](papers/joss/paper.md) and [bibliography](papers/joss/paper.bib); **not eligible yet** under the journal's current sustained public-development, completeness, and impact requirements.
+
+Both drafts disclose AI assistance and substantial prior work. Neither represents an arXiv endorsement, JOSS submission, journal acceptance, or a claim of scientific novelty. Check each venue's latest policies before submission.
+
 ## Open invitation for scientific review
 
 **Researchers and engineers are invited to challenge, reproduce, or improve the work.** Especially valuable are:
