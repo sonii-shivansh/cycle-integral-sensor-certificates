@@ -72,6 +72,24 @@ These results are limited to the specified simulation; they do not demonstrate f
 | [LIMITATIONS.md](LIMITATIONS.md) | What the method does and does not certify |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to propose corrections, replication studies, and independent review |
 
+## Citation and release archiving
+
+A machine-readable [CITATION.cff](CITATION.cff) is included so GitHub can display **Cite this repository** and Zenodo can read the metadata for an archived software release. The citation is prepared for version **0.1.0**. **No DOI has been assigned or verified yet**; do not cite a placeholder DOI.
+
+The creator name matches the public copyright notice in [LICENSE](LICENSE). When a Zenodo DOI is available, use the **version-specific DOI** to cite a particular archived release.
+
+For the first official GitHub release and Zenodo archive, follow [PUBLISHING.md](PUBLISHING.md). Enable GitHub integration in Zenodo **before** publishing the release.
+
+## Regression checks
+
+In addition to the example above, run:
+
+~~~bash
+python -m unittest discover -s tests -v
+~~~
+
+GitHub Actions runs this test suite and the example script on pushes and pull requests. These are software regression checks, not independent experimental validation.
+
 ## Important findings and constraints
 
 - The certificate is **one-sided**: an alarm implies model inconsistency under the stated bounds, but no alarm cannot establish health.
@@ -102,4 +120,4 @@ Please [open an issue](https://github.com/sonii-shivansh/cycle-integral-sensor-c
 
 This initial research note, derivation, accompanying code, and documentation were developed with assistance from OpenAI's ChatGPT and have **not** undergone independent expert review. The repository owner is publishing them for scrutiny and correction. No new discovery, peer-review status, experimental validation, or specific author credentials are implied.
 
-**Licensing:** No reuse license is included in this initial publication. The repository owner can choose and add an appropriate license separately.
+**License:** This repository includes the [MIT License](LICENSE), with copyright attributed to Shivansh Soni (2026). See the license file for its terms.
