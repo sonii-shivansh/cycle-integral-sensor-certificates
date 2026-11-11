@@ -1,0 +1,61 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{proposition}{Proposition}
+\title{Integrated Consistency Bounds for First-Order Sensor Ensembles: A Reproducible Exploratory Case Study}
+\author{Shivansh Soni}
+\date{Working draft --- 11 November 2026 (not submitted)}
+\begin{document}
+\maketitle
+\begin{abstract}
+We describe an exploratory pairwise consistency check for observations from first-order sensors driven by a common unknown time-varying input. Integrating sensor equations eliminates that input. With explicit bounds on response times, observation error, and signal curvature, a deterministic inequality gives one-sided inconsistency certificates. Standard conflict-graph matching provides a lower bound on the number of sensors incompatible with the model. A six-sensor synthetic example illustrates the calculations. Prior work established integrated analog diagnosis, thermocouple dynamics and conflict-based diagnosis; neither scientific priority nor state-of-the-art performance is claimed. This draft requires independent review.
+\end{abstract}
+\section{Motivation and prior work}
+Two healthy sensors with different time constants can produce different instantaneous readings under the same physical input. The study of reconstructing temperature using pairs of thermocouples dates back decades \cite{tagawa1997}. Bounded observations and integrated dynamical constraints for analog diagnosis were studied by Loiez and Taillibert \cite{loiez1997}. Graphical multiple-fault diagnosis also has extensive prior art \cite{dekleer1987}. The purpose here is a transparent, limited example for critical comparison.
+\section{Model and a necessary inequality}
+Assume that every healthy sensor has a twice-differentiable response $y_i:[a,b]\to\mathbb{R}$ satisfying
+\begin{equation}
+\tau_i \dot y_i(t)+y_i(t)=T(t),\qquad 0\le \tau_i\le M,
+\label{eq:model}
+\end{equation}
+where $T(t)$ is unknown but common to all healthy sensors. Take uniformly spaced samples $t_k=a+kh$, with $h=(b-a)/N$ and $L=b-a$. The observations obey $|z_i(t_k)-y_i(t_k)|\le \epsilon_i$ and the underlying responses obey $|y_i''(t)|\le K_i$ for all $t\in[a,b]$.
+Subtracting two instances of Eq.~\eqref{eq:model} and integrating gives
+\begin{equation}
+\int_a^b(y_j-y_i)\,dt=\tau_i[y_i(b)-y_i(a)]-\tau_j[y_j(b)-y_j(a)].
+\label{eq:identity}
+\end{equation}
+Let $Q_{ij}$ be the composite trapezoidal approximation to the integral of $z_j-z_i$, using the measured sample values, and set $d_i=z_i(b)-z_i(a)$.
+\begin{proposition}[One-sided pairwise consistency certificate]
+If both sensors satisfy all preceding assumptions, then
+\begin{equation}
+|Q_{ij}|\le M(|d_i|+|d_j|)+(\epsilon_i+\epsilon_j)(L+2M)+\frac{Lh^2(K_i+K_j)}{12}.
+\label{eq:bound}
+\end{equation}
+A strict violation proves that at least one joint healthy-model assumption is false.
+\end{proposition}
+\begin{proof}
+By Eq.~\eqref{eq:identity}, $|\int_a^b(y_j-y_i)\,dt|$ is at most $M(|\Delta y_i|+|\Delta y_j|)$. Observation-error bounds imply $|\Delta y_i|\le |d_i|+2\epsilon_i$, giving the first term and $2M(\epsilon_i+\epsilon_j)$. The composite trapezoid approximation of the true difference has an absolute error at most $Lh^2(K_i+K_j)/12$. The trapezoid weights are nonnegative and sum to $L$, so replacing true samples by observed ones causes at most $L(\epsilon_i+\epsilon_j)$ additional error. Adding these contributions proves the result.
+\end{proof}
+This bound is necessary, not sufficient. A passing pair need not be healthy. A violation might indicate a failed physical assumption rather than defective hardware.
+\section{Contradiction graph}
+Construct a graph with one vertex per sensor and an edge for every pair violating Eq.~\eqref{eq:bound}. Every edge requires at least one incompatible sensor-model assumption.
+\begin{proposition}[Matching lower bound]
+If the contradiction graph has a matching of size $r$, at least $r$ distinct sensors must violate the assumed healthy-sensor model.
+\end{proposition}
+\begin{proof}
+Each contradictory pair must have an incompatible endpoint. The $r$ edges of a matching have no endpoints in common, and therefore require at least $r$ distinct incompatible vertices.
+\end{proof}
+The smallest vertex cover is a minimal explanation, not proof of the physical identity of any defective device. These are standard graph-theoretic consequences of conflicts.
+\section{Synthetic demonstration and negative baseline}
+The accompanying NumPy code simulates six exact sinusoidal steady-state first-order responses with time constants $1,2,3,5,8,13$ seconds, bounded random sample noise and two injected constant offsets. It identifies nine pairwise contradictions among fifteen, and a unique size-two minimum vertex cover corresponding to the injected offsets. This is a verification of one constructed example, not an empirical sensor study. Under the complete-period sinusoidal example, a simpler period-average comparison finds the same nine contradictions, with a tighter sufficient bias threshold. Hence there is no demonstrated advantage over this baseline.
+\section{Limitations and next validation steps}
+The certificate depends on trustworthy deterministic error, curvature and time-constant bounds, synchronized observations and a genuinely common input. Common-mode offsets are fundamentally unobservable under the model. Nonperiodic inputs, realistic gradients and synchronization errors, more efficient combinatorial methods, and comparisons with published diagnosis approaches remain to be evaluated. Independent examination of the derivations is required before any scholarly submission.
+\section*{Research artifacts and AI disclosure}
+The reproducible code and prior-art audit are publicly available at \url{https://github.com/sonii-shivansh/cycle-integral-sensor-certificates}. OpenAI ChatGPT (GPT-6, this drafting session) assisted with manuscript preparation and earlier project materials. The exact provenance of earlier AI use and independent human verification must be confirmed before submission. This file is a \textbf{working draft, not an arXiv publication}.
+\begin{thebibliography}{9}
+\bibitem{dekleer1987} J. de Kleer and B. C. Williams, "Diagnosing multiple faults," \emph{Artificial Intelligence} 32(1), 97--130 (1987). \href{https://doi.org/10.1016/0004-3702(87)90063-4}{doi:10.1016/0004-3702(87)90063-4}.
+\bibitem{loiez1997} E. Loiez and P. Taillibert, "Polynomial Temporal Band Sequences for Analog Diagnosis," \emph{Proceedings of the Fifteenth International Joint Conference on Artificial Intelligence}, 474--478 (1997). \url{https://www.ijcai.org/proceedings/1997/70}.
+\bibitem{tagawa1997} M. Tagawa and Y. Ohta, "Two-thermocouple probe for fluctuating temperature measurement in combustion---Rational estimation of mean and fluctuating time constants," \emph{Combustion and Flame} 109(4), 549--560 (1997). \href{https://doi.org/10.1016/S0010-2180(97)00044-8}{doi:10.1016/S0010-2180(97)00044-8}.
+\end{thebibliography}
+\end{document}
