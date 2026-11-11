@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this research software, please cite the archived version when a DOI is available, or cite this repository."
+type: software
+title: "Cycle-Integral Sensor Certificates (CIFC)"
+abstract: >-
+  An exploratory research prototype for testing consistency among first-order
+  sensors sharing an unknown input, using an integrated pairwise inequality,
+  deterministic uncertainty bounds, and graph-based conflict analysis.
+  The results are synthetic, have not been independently peer reviewed or
+  hardware validated, and are not claimed to establish scientific novelty.
+version: 0.1.0
+license: MIT
+authors:
+  - given-names: Shivansh
+    family-names: Soni
+repository-code: "https://github.com/sonii-shivansh/cycle-integral-sensor-certificates"
+url: "https://github.com/sonii-shivansh/cycle-integral-sensor-certificates"
+keywords:
+  - sensor consistency
+  - fault diagnosis
+  - first-order sensors
+  - control theory
+  - scientific software
+  - reproducible research
