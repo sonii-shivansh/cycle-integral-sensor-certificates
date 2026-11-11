@@ -69,6 +69,40 @@ def certificates(t, z):
     return flags, all_tests
 
 
+
+def directional_certificates(t, z):
+    """Stronger sign-aware interval certificate under the SAME physical assumptions.
+
+    The unknown nonnegative response times and noisy endpoint changes give
+    asymmetric feasible bounds on the signed integral. This test is sound,
+    but does not guarantee detection of every faulty sensor.
+
+    Returns (violating_edges, all_tests), where each test includes the
+    observed integral, lower/upper feasible interval, and violation flag.
+    """
+    n = z.shape[0]
+    length = float(t[-1] - t[0])
+    h = float(t[1] - t[0])
+    assert np.allclose(np.diff(t), h)
+    error = (2 * EPS) * length + length * h*h * (2 * CURVATURE_MAX) / 12.0
+    flags, all_tests = [], []
+    for i, j in itertools.combinations(range(n), 2):
+        integral = float(np.trapezoid(z[j] - z[i], t))
+        delta_i = float(z[i, -1] - z[i, 0])
+        delta_j = float(z[j, -1] - z[j, 0])
+        lower_i = min(0.0, TAU_MAX * (delta_i - 2 * EPS))
+        upper_i = max(0.0, TAU_MAX * (delta_i + 2 * EPS))
+        lower_j = min(0.0, TAU_MAX * (delta_j - 2 * EPS))
+        upper_j = max(0.0, TAU_MAX * (delta_j + 2 * EPS))
+        lower = lower_i - upper_j - error
+        upper = upper_i - lower_j + error
+        violated = integral < lower - 1e-10 or integral > upper + 1e-10
+        all_tests.append((i + 1, j + 1, integral, lower, upper, violated))
+        if violated:
+            flags.append((i, j))
+    return flags, all_tests
+
+
 def maximum_matching_size(n, edges):
     """Exhaustive DP for the tiny demonstration; use blossom at scale."""
     edge_set = {tuple(sorted(e)) for e in edges}
