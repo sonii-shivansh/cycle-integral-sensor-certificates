@@ -90,6 +90,30 @@ python -m unittest discover -s tests -v
 
 GitHub Actions runs this test suite and the example script on pushes and pull requests. These are software regression checks, not independent experimental validation.
 
+## Follow-up mathematical check: sign-aware interval certificate
+
+A follow-up [derivation and controlled stress test](docs/directional_extension.md) keeps the signs of the sensor endpoint changes instead of immediately taking their absolute values. Under the **same** first-order model and deterministic bounds, the sign-aware feasible interval is contained in the original one, so it can only add contradictions, not remove them. This is an elementary **interval refinement**, **not a verified new research discovery**.
+
+For a 13.5-second partial-period/nonperiodic-window synthetic benchmark, two fixed sensor biases were added while temperature drift varied. Across **100 seeded trials per drift setting**:
+
+| Temperature drift (°C/s) | Original test: trials with any contradiction | Sign-aware test: trials with any contradiction |
+| --- | ---: | ---: |
+| 0.0 | 100/100 | 100/100 |
+| 0.3 | 0/100 | 100/100 |
+| 0.6 | 0/100 | 0/100 |
+| 1.0 | 0/100 | 0/100 |
+
+On corresponding all-healthy synthetic arrays, **neither method raised a contradiction**. Another **250 randomized healthy ensembles** also passed. These counts are specific to exactly described simulated physics, chosen bounds and injected biases—not hardware false-alarm or detection rates. At larger drift **both tests miss the injected biases**; there is no demonstrated advantage over published interval or set-membership approaches.
+
+Reproduce locally:
+
+~~~bash
+python -m experiments.nonperiodic_benchmark
+python -m unittest discover -s tests -v
+~~~
+
+The original implementation is preserved in \`certificates()\`, and the new one is \`directional_certificates()\`. See [nonperiodic experiment source](experiments/nonperiodic_benchmark.py) and [formal extension with limitations](docs/directional_extension.md). Existing Zenodo release \`v0.1.0\` is a fixed historical snapshot and **does not contain this follow-up work**.
+
 ## Important findings and constraints
 
 - The certificate is **one-sided**: an alarm implies model inconsistency under the stated bounds, but no alarm cannot establish health.
