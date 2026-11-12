@@ -131,7 +131,22 @@ It times, on healthy analytical multi-sensor datasets:
 
 The global LP has \(n+W\) unknowns and \(2nW\) interval inequalities plus \(n\) box constraints. Computing *all* pairwise LPs takes \(\binom{n}{2}\) small problems. The asymptotic number of LP calls is respectively 1 versus \(\Theta(n^2)\), **but these answer different questions**, so this difference is not a proved runtime superiority or an apples-to-apples comparison of identical output functionality. Timing is environment-dependent; no measured speedup or maximum-supported-network-size claim is made.
 
-## 6. Scientific conclusion
+## 6. Verified GitHub Actions results (one environment, not a performance guarantee)
+
+[GitHub Actions run #43223985881](https://github.com/sonii-shivansh/cycle-integral-sensor-certificates/actions/runs/43223985881) **passed all 34 regression tests**. The explicit network example printed **all three pairwise LPs feasible**, full network \`solver_infeasible\`, and exact-rational Farkas contradiction **\`0 <= -1\`**.
+
+The same run executed \`python -m experiments.network_scaling_benchmark\` on a GitHub-hosted Linux runner using **Python 3.11.18, NumPy 2.4.6, SciPy 1.17.1**. Times below are median seconds over **two repetitions** per size, on one machine; they include solver setup and Python overhead, and are not calibrated cross-hardware benchmarks.
+
+| Sensors \(n\) | Windows \(W\) | Global LP calls | All pairwise LP calls | Global LP median (s) | Complete pairwise-graph median (s) |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 6 | 4 | 1 | 15 | 0.006598 | 0.014833 |
+| 12 | 4 | 1 | 66 | 0.001368 | 0.064636 |
+| 24 | 4 | 1 | 276 | 0.001812 | 0.273452 |
+| 48 | 4 | 1 | 1128 | 0.002979 | 1.115438 |
+
+All generated datasets in this *timing* benchmark are analytically **healthy** under the assumed model; neither method rejected them. **Do not divide these times and report an algorithmic speedup**: the single global test answers only whether the full network is consistent, while all pairwise tests return all edges for further fault-explanation analysis. Their outputs differ in both strength and diagnostic detail. The nonmonotonic global time from \(n=6\) to \(n=12\) also demonstrates cold-start/measurement noise at these short durations. Replicate with more repetitions and other solvers/hardware before attempting performance claims.
+
+## 7. Scientific conclusion
 
 1. **Mathematically established:** the current pairwise graph can miss global LP inconsistency; the three-sensor example has an independently checkable exact rational network witness.
 2. **Classical theory, not new invention:** global vs pairwise consistency and Helly's \(W+1\) bound come from well-known convex geometry and set-membership diagnosis.
