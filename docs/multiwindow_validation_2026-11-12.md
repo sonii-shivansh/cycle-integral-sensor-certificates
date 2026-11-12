@@ -72,7 +72,7 @@ Two exponential responses to a common zero input, with constant \(\tau=(0.5,1.2)
 
 ## Experiment 3 — Six sensors, matched windows, 20 seeded trials per setting
 
-Using the same synthetic six-sensor dynamics as the original nonperiodic experiment, split the **same** 13.5-second trace into four windows: 0–3, 3–6, 6–9, and 9–13.5 seconds. Every method receives the same sample times, data, bounds (\(M=15,\epsilon=0.02,K=8(2\pi/20)^2\)), and windows. Add fixed biases +1.2°C (sensor 3) and −1.5°C (sensor 6) for the injected-bias conditions. Each drift condition uses 20 fixed seeds, with independent healthy and injected-bias data sets.
+Using the same synthetic six-sensor dynamics as the original nonperiodic experiment, split the **same** 13.5-second trace into four windows: 0–3, 3–6, 6–9, and 9–13.5 seconds. Every method receives the same sample times, data, bounds (\(M=15,\epsilon=0.02,K=8(2\pi/20)^2\)), and windows. Add fixed biases +1.2°C (sensor 3) and −1.5°C (sensor 6) for the injected-bias conditions. Each drift condition uses 20 fixed seeds, with *matched noise realizations* in the healthy and injected-bias data sets (the same seed is reused for each pair of conditions).
 
 A pair is flagged by the original or sign-aware baseline if **any** window violates that inequality. For the LP, a pair is flagged if the **same pair's** response-time variables cannot satisfy all four windows (HiGHS status \`solver_infeasible\`).
 
