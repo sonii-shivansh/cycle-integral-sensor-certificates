@@ -132,6 +132,17 @@ python -m experiments.multiwindow_case_study
 
 **This extension is experimental; the Zenodo v0.1.0 archive has not been changed.** No novelty, peer-review, hardware-accuracy or superiority-to-published-methods claim is made.
 
+## Exact-rational contradiction verification (experimental branch)
+
+The multi-window research branch now includes an **independent two-sensor LP verifier** that recomputes trapezoid integrals from recorded samples as exact rational numbers, uses Fourier–Motzkin elimination, and produces a checkable **Farkas infeasibility certificate** when the relaxed pairwise constraints conflict. It is separate from the fast, floating-point SciPy/HiGHS solver.
+
+- [Proof, scope and reproducibility guide](docs/exact_lp_certification_2026-11-12.md)
+- [Pure-Python rational certificate checker](experiments/exact_pairwise_certificate.py)
+- [Adversarial regression tests](tests/test_exact_pairwise_certificate.py)
+- [Independent scientific integrity audit](docs/verification_audit_2026-11-12.md)
+
+This verifies the **rational LP built from the exact represented numeric inputs**, not sensor calibration, scientific novelty, or full differential-equation feasibility. It does **not** justify converting any numerical solver's rejection into a certified physical hardware failure. No source files from Zenodo \`v0.1.0\` have been altered.
+
 ## Important findings and constraints
 
 - The certificate is **one-sided**: an alarm implies model inconsistency under the stated bounds, but no alarm cannot establish health.
