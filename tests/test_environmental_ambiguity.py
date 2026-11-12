@@ -87,6 +87,37 @@ class EnvironmentalAmbiguityTests(unittest.TestCase):
                 windows,M,EPS,K,input_spread=0.0).items()}
         )
 
+    def test_exact_rational_environmental_margin_has_primal_witness(self):
+        # Two independent windows of exact healthy *local-input* ramp physics.
+        # No common-input model exists with tau<=2, but the true local
+        # temperature offsets have independently specified limits (0,2,2).
+        from experiments.exact_pairwise_certificate import (
+            exact_window, exact_pairwise_verdict,
+        )
+        from experiments.network_exact_certificate import (
+            exact_network_rows, certify_network_infeasibility,
+        )
+        from experiments.certified_conflict_hyperedges import RationalPrimal
+        time_windows=([0,1],[1,2])
+        observations=[]
+        for ts in time_windows:
+            observations.append(exact_window(ts,[
+                [F(10)+2*F(t) for t in ts],
+                [F(10)+2*F(t) for t in ts],
+                [F(4)+2*F(t) for t in ts],
+            ]))
+        self.assertEqual(exact_pairwise_verdict(
+            observations,(0,2),2,0,0).status,"exact_infeasible")
+        robust=exact_network_rows(
+            observations,2,0,0,input_spread=(F(0),F(2),F(2))
+        )
+        # Actual physical tau=(0,1,2); each centered J_w=1.
+        witness=RationalPrimal((F(0),F(1),F(2),F(1),F(1)))
+        self.assertTrue(witness.check(robust))
+        self.assertEqual(certify_network_infeasibility(
+            observations,2,0,0,input_spread=(0,2,2)
+        ).status,"not_certified")
+
     def test_invalid_environmental_bounds_rejected(self):
         data=indistinguishable_worlds(0,.3)
         windows=summarize_observations(data["t"],data["z_output_bias"])
