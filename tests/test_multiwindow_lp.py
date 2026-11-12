@@ -55,11 +55,36 @@ class MultiWindowTests(unittest.TestCase):
         self.assertEqual(r.status, 'feasible_relaxation', r.message)
         np.testing.assert_allclose(r.time_constants, tau, atol=1e-8)
 
+    def test_nonuniform_microsteps_use_valid_quadrature_bound(self):
+        # Exact healthy first-order pair with a shared polynomial input.
+        # tau_1=0, tau_2=s, and y_2+s*y_2' = y_1 = T.
+        # An old atol=1e-12 allclose check wrongly accepted this very
+        # nonuniform grid and used the *first* gap in the curvature bound.
+        s = 2.0**-44
+        x = np.array([0.0, 1.0, 2.0, 8.0])
+        t = s * x
+        amplitude = 1.0 / s
+        z = amplitude * np.array([
+            x**3 - 9*x**2 + 8*x,
+            x**3 - 12*x**2 + 32*x - 32
+        ])
+        w = summarize_window(t, z)
+        self.assertEqual(w.step, 6*s)
+        self.assertAlmostEqual(w.integrals[1] - w.integrals[0], -109.0)
+        # The true curvature bound is max(K_1,K_2)=30*amplitude/s**2.
+        K = 30 * amplitude / s**2
+        # A first-gap bound would be 40, falsely smaller than |Q|=109.
+        self.assertTrue(signaware_window_passes(w, 0, 1, s, 0.0, K))
+        self.assertEqual(joint_relaxation([w], s, 0.0, K).status,
+                         'feasible_relaxation')
+
     def test_invalid_times_and_shapes_rejected(self):
         with self.assertRaises(ValueError):
             summarize_window([0,0,1], np.ones((2,3)))
-        with self.assertRaises(ValueError):
-            summarize_window([0,1,3], np.ones((2,3)))
+        # Nonuniform increasing samples are allowed with a conservative
+        # maximum-step trapezoid bound.
+        w_irregular = summarize_window([0, 1, 3], np.ones((2, 3)))
+        self.assertEqual(w_irregular.step, 2.0)
         with self.assertRaises(ValueError):
             summarize_window([0,1], [[1, np.nan]])
         w = summarize_window([0,1], [[0,1],[0,0]])
