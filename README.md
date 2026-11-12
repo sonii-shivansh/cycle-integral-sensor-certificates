@@ -114,6 +114,24 @@ python -m unittest discover -s tests -v
 
 The original implementation is preserved in \`certificates()\`, and the new one is \`directional_certificates()\`. See [nonperiodic experiment source](experiments/nonperiodic_benchmark.py) and [formal extension with limitations](docs/directional_extension.md). Existing Zenodo release \`v0.1.0\` is a fixed historical snapshot and **does not contain this follow-up work**.
 
+## Experimental multi-window LP (proposed, not yet merged)
+
+A separate experimental implementation is under review in [experiments/multiwindow_lp.py](experiments/multiwindow_lp.py). It uses one unknown but **constant** response-time parameter per sensor across several observation windows, with an LP outer relaxation of the same first-order sensor model. It **does not certify physical hardware failures**, and a numerical solver result is not a formal proof of infeasibility near roundoff tolerances.
+
+- [Derivation, caveats, and matched-window results](docs/multiwindow_validation_2026-11-12.md)
+- [Source-comparison case study](experiments/multiwindow_case_study.py)
+- [Attribution and limitations of the Gemini/Codex AI-generated referee reports](docs/ai_review_synthesis_2026-11-12.md)
+
+Run the research-only comparison (requires SciPy):
+
+~~~bash
+python -m pip install -r requirements-research.txt
+python -m unittest discover -s tests -v
+python -m experiments.multiwindow_case_study
+~~~
+
+**This extension is experimental; the Zenodo v0.1.0 archive has not been changed.** No novelty, peer-review, hardware-accuracy or superiority-to-published-methods claim is made.
+
 ## Important findings and constraints
 
 - The certificate is **one-sided**: an alarm implies model inconsistency under the stated bounds, but no alarm cannot establish health.
