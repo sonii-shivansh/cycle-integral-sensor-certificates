@@ -34,6 +34,27 @@ class MultiWindowTests(unittest.TestCase):
         self.assertEqual(r.status, 'feasible_relaxation')
         self.assertLessEqual(r.max_constraint_violation, 1e-6)
 
+    def test_large_exact_common_offset_does_not_create_false_conflicts(self):
+        # Exact healthy response: T(t) = 2**52 + t, tau = (0,1,2).
+        # All sample values are exactly representable binary64 integers;
+        # eps = K = 0, so the physical ODE and bounds hold exactly.
+        # Integrating each ~1e17 raw signal separately can lose increments
+        # to floating-point rounding and falsely label the LP infeasible.
+        t = np.arange(201, dtype=float)
+        tau = np.array([0.0, 1.0, 2.0])
+        y = 2.0**52 + t[None, :] - tau[:, None]
+        windows = [summarize_window(t[a:b+1], y[:, a:b+1])
+                   for a, b in [(0, 50), (50, 120), (120, 200)]]
+        np.testing.assert_array_equal(windows[0].integrals,
+                                      [1250.0, 1200.0, 1150.0])
+        np.testing.assert_array_equal(windows[1].integrals,
+                                      [2450.0, 2380.0, 2310.0])
+        np.testing.assert_array_equal(windows[2].integrals,
+                                      [3200.0, 3120.0, 3040.0])
+        r = joint_relaxation(windows, 3.0, 0.0, 0.0)
+        self.assertEqual(r.status, 'feasible_relaxation', r.message)
+        np.testing.assert_allclose(r.time_constants, tau, atol=1e-8)
+
     def test_invalid_times_and_shapes_rejected(self):
         with self.assertRaises(ValueError):
             summarize_window([0,0,1], np.ones((2,3)))
