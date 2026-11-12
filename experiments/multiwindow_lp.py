@@ -19,7 +19,7 @@ class WindowSummary:
     integrals: np.ndarray
     increments: np.ndarray
     length: float
-    step: float
+    step: float  # Maximum sampling gap; exact step for uniform grids.
 
 
 @dataclass(frozen=True)
@@ -34,7 +34,7 @@ class LPFinding:
 
 
 def summarize_window(t, z):
-    """Build window summary; z shape (sensors, samples), uniform time grid."""
+    """Build summary for increasing, possibly nonuniform sample times."""
     t = np.asarray(t, dtype=float)
     z = np.asarray(z, dtype=float)
     if t.ndim != 1 or len(t) < 2:
@@ -46,9 +46,10 @@ def summarize_window(t, z):
     diffs = np.diff(t)
     if np.any(diffs <= 0):
         raise ValueError("timestamps must be strictly increasing")
-    h = float(diffs[0])
-    if not np.allclose(diffs, h, rtol=1e-10, atol=1e-12):
-        raise ValueError("timestamps must be uniformly spaced")
+    # For arbitrary increasing grids, the composite trapezoid error obeys
+    # |error| <= (K/12)*sum(diff**3) <= (K/12)*L*max(diff)**2.
+    # Using the FIRST gap would underestimate the bound on nonuniform grids.
+    h = float(np.max(diffs))
     # The physical integral constraints are invariant under a COMMON offset
     # applied to every sensor within a window. Subtract it before integration
     # to prevent catastrophic cancellation between large sensor integrals.
