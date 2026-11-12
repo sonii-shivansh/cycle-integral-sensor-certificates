@@ -29,5 +29,7 @@ jobs:
         run: python -m experiments.certified_conflict_demo
       - name: Compare global and pairwise LP scaling
         run: python -m experiments.network_scaling_benchmark
+      - name: Audit environmental input ambiguity and bounded mismatch
+        run: python -m experiments.environmental_ambiguity_study
       - name: Run documented demonstration
         run: python cycle_integral_fault_certificate.py
