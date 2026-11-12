@@ -85,6 +85,22 @@ class CertifiedHyperedgeTests(unittest.TestCase):
         )
         self.assertFalse(forged.verify(windows,2,0,0))
 
+    def test_duplicate_deletion_witness_cannot_fake_minimality(self):
+        windows=[exact_window(t,z) for t,z in observations()]
+        good=certified_conflict_hyperedge(windows,2,0,0)
+        self.assertEqual(good.status,"certified_minimal")
+        # A full list of proofs is essential: repeating a valid proof for
+        # one removed sensor must not replace a missing proof for another.
+        forged=replace(
+            good,
+            deletion_witnesses=(
+                good.deletion_witnesses[0],
+                good.deletion_witnesses[0],
+                good.deletion_witnesses[2]
+            )
+        )
+        self.assertFalse(forged.verify(windows,2,0,0))
+
     def test_25_random_feasible_exact_models_prove_primal_when_possible(self):
         rng=np.random.default_rng(24011)
         successes=0
