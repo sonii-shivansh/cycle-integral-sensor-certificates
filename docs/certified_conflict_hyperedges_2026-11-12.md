@@ -111,7 +111,7 @@ Verified feasible one-sensor deletions:
   remove sensor 3; exact feasible tau+J=('1', '0', '3/2', '0')
 ~~~
 
-The combined unknown order in each deletion witness is **the two remaining sensors' response times**, in their selected-subset order, followed by the two integrated shared-input values \((J_1,J_2)\). Every entry is a Python exact rational \`Fraction\` and was separately checked against all inequalities of that deletion's LP.
+The combined unknown order in each deletion witness is **the two remaining sensors' response times**, in their selected-subset order, followed by the two integrated shared-input values \((J_1,J_2)\). **These input integrals are common-reference-centered coordinates**: the first window's reference is \(-1/2\), so its displayed \(J_1\) is \(+1/2\) relative to the uncentered geometric line-segment values above. This is a mathematically invariant coordinate shift, not a discrepancy in the feasibility proof. Every entry is a Python exact rational \`Fraction\` and was separately checked against all inequalities of that deletion's LP.
 
 The dual-extracted contradiction \(0\le-1/4\) is a **positively rescaled** version of the separately constructed \(0\le-1\) four-row proof in the earlier network note; both are valid certificates of the same infeasible linear system. A Farkas certificate is not unique and can be scaled by any positive factor.
 
