@@ -16,7 +16,6 @@ recorded numeric input values interpreted as exact rational numbers.
 """
 from dataclasses import dataclass
 from fractions import Fraction
-from itertools import combinations
 from numbers import Integral
 import math
 
@@ -209,6 +208,11 @@ class CertifiedConflict:
             return False
         if self.status == "certified_minimal":
             if len(self.deletion_witnesses) != len(self.sensors):
+                return False
+            # Every distinct one-sensor deletion is a separate proof
+            # obligation. Duplicating one valid witness cannot substitute
+            # for a missing deletion proof.
+            if {removed for removed, _ in self.deletion_witnesses} != set(self.sensors):
                 return False
             for removed, witness in self.deletion_witnesses:
                 if removed not in self.sensors:
