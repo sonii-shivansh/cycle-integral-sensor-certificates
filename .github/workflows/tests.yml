@@ -23,5 +23,9 @@ jobs:
         run: python -m experiments.multiwindow_case_study
       - name: Compare classical invariant-parameter set-membership baseline
         run: python -m experiments.set_membership_comparison
+      - name: Verify exact network-only contradiction
+        run: python -m experiments.network_consistency_gap
+      - name: Compare global and pairwise LP scaling
+        run: python -m experiments.network_scaling_benchmark
       - name: Run documented demonstration
         run: python cycle_integral_fault_certificate.py
