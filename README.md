@@ -143,6 +143,24 @@ The multi-window research branch now includes an **independent two-sensor LP ver
 
 This verifies the **rational LP built from the exact represented numeric inputs**, not sensor calibration, scientific novelty, or full differential-equation feasibility. It does **not** justify converting any numerical solver's rejection into a certified physical hardware failure. No source files from Zenodo \`v0.1.0\` have been altered.
 
+## Independent set-membership prior-art comparison (negative result)
+
+We independently reconstructed a classical **invariant-parameter feasible-solution-set (FSS)** baseline using exact-rational convex-polygon clipping, following the conceptual framework discussed in Ingimundarson et al. (2005). This is **not a replication of their parallelotope approximation code**. For the **same affine constraints and matched sensor data**, this independent baseline and CIFC's multi-window LP found **exactly the same sensor-pair contradictions** across all 20 seeds in every tested condition. This is consistent with their proven mathematical equivalence, and does **not** demonstrate any advantage for CIFC over the standard set-membership formulation.
+
+- [Prior-art comparison, full table and mathematical equivalence](docs/set_membership_prior_art_comparison_2026-11-12.md)
+- [Independent rational geometric baseline](experiments/set_membership_fss_baseline.py)
+- [Fair matched-window comparison script](experiments/set_membership_comparison.py)
+- [Adversarial baseline agreement tests](tests/test_set_membership_fss.py)
+
+Run:
+
+~~~bash
+python -m pip install -r requirements-research.txt
+python -m experiments.set_membership_comparison
+~~~
+
+**Research integrity:** All figures are synthetic contradiction-edge counts, not sensor identification rates, and the project is neither novel nor validated merely because different implementations agree. The fixed Zenodo v0.1.0 remains unchanged.
+
 ## Important findings and constraints
 
 - The certificate is **one-sided**: an alarm implies model inconsistency under the stated bounds, but no alarm cannot establish health.
