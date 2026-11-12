@@ -88,7 +88,7 @@ From the GitHub repository root:
 
 ~~~bash
 python -m pip install -r requirements-research.txt
-python -m unittest tests.test_exact_pairwise_certificate -v
+python -m unittest discover -s tests -p 'test_exact_pairwise_certificate.py' -v
 python -m unittest discover -s tests -v
 ~~~
 
