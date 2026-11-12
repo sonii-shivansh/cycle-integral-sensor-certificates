@@ -97,6 +97,26 @@ python -m unittest discover -s tests -v
 
 Actual CI run and exact test count must be checked after the final branch commit. Passing tests show executed correctness checks, **not** an exhaustive proof of every possible input.
 
+## Verified GitHub Actions example
+
+[GitHub Actions run #43229125386](https://github.com/sonii-shivansh/cycle-integral-sensor-certificates/actions/runs/43229125386) **passed all 50 regression tests**, including the explicit proof-carrying demonstration and the test that rejects repeated/deceptively missing deletion witnesses. On that run the demonstration reported:
+
+~~~text
+Result: certified_minimal
+Sensors (1-indexed): [1, 2, 3]
+Exact Farkas contradiction: 0 <= -1/4
+Verified feasible one-sensor deletions:
+  remove sensor 1; exact feasible tau+J=('1', '1', '3/2', '1')
+  remove sensor 2; exact feasible tau+J=('2', '0', '5/2', '0')
+  remove sensor 3; exact feasible tau+J=('1', '0', '3/2', '0')
+~~~
+
+The combined unknown order in each deletion witness is **the two remaining sensors' response times**, in their selected-subset order, followed by the two integrated shared-input values \((J_1,J_2)\). Every entry is a Python exact rational \`Fraction\` and was separately checked against all inequalities of that deletion's LP.
+
+The dual-extracted contradiction \(0\le-1/4\) is a **positively rescaled** version of the separately constructed \(0\le-1\) four-row proof in the earlier network note; both are valid certificates of the same infeasible linear system. A Farkas certificate is not unique and can be scaled by any positive factor.
+
+This run provides reproducibility of **the exact finite rational LP proof**, not an empirical claim about real hardware or scientific priority.
+
 ## Relation to established research
 
 Finding inclusion-minimal inconsistent subsets/unsatisfiable cores is **established model-based diagnosis and constraint-solving practice**, related to the classical conflict and hitting-set work of Reiter (1987) and de Kleer & Williams (1987). The exact Farkas and primal-witness checks use established linear programming/convex optimization.
