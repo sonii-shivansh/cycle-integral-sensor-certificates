@@ -114,6 +114,101 @@ python -m unittest discover -s tests -v
 
 The original implementation is preserved in \`certificates()\`, and the new one is \`directional_certificates()\`. See [nonperiodic experiment source](experiments/nonperiodic_benchmark.py) and [formal extension with limitations](docs/directional_extension.md). Existing Zenodo release \`v0.1.0\` is a fixed historical snapshot and **does not contain this follow-up work**.
 
+## Experimental multi-window LP (proposed, not yet merged)
+
+A separate experimental implementation is under review in [experiments/multiwindow_lp.py](experiments/multiwindow_lp.py). It uses one unknown but **constant** response-time parameter per sensor across several observation windows, with an LP outer relaxation of the same first-order sensor model. It **does not certify physical hardware failures**, and a numerical solver result is not a formal proof of infeasibility near roundoff tolerances.
+
+- [Derivation, caveats, and matched-window results](docs/multiwindow_validation_2026-11-12.md)
+- [Source-comparison case study](experiments/multiwindow_case_study.py)
+- [Attribution and limitations of the Gemini/Codex AI-generated referee reports](docs/ai_review_synthesis_2026-11-12.md)
+
+Run the research-only comparison (requires SciPy):
+
+~~~bash
+python -m pip install -r requirements-research.txt
+python -m unittest discover -s tests -v
+python -m experiments.multiwindow_case_study
+~~~
+
+**This extension is experimental; the Zenodo v0.1.0 archive has not been changed.** No novelty, peer-review, hardware-accuracy or superiority-to-published-methods claim is made.
+
+## Exact-rational contradiction verification (experimental branch)
+
+The multi-window research branch now includes an **independent two-sensor LP verifier** that recomputes trapezoid integrals from recorded samples as exact rational numbers, uses Fourier–Motzkin elimination, and produces a checkable **Farkas infeasibility certificate** when the relaxed pairwise constraints conflict. It is separate from the fast, floating-point SciPy/HiGHS solver.
+
+- [Proof, scope and reproducibility guide](docs/exact_lp_certification_2026-11-12.md)
+- [Pure-Python rational certificate checker](experiments/exact_pairwise_certificate.py)
+- [Adversarial regression tests](tests/test_exact_pairwise_certificate.py)
+- [Independent scientific integrity audit](docs/verification_audit_2026-11-12.md)
+
+This verifies the **rational LP built from the exact represented numeric inputs**, not sensor calibration, scientific novelty, or full differential-equation feasibility. It does **not** justify converting any numerical solver's rejection into a certified physical hardware failure. No source files from Zenodo \`v0.1.0\` have been altered.
+
+## Independent set-membership prior-art comparison (negative result)
+
+We independently reconstructed a classical **invariant-parameter feasible-solution-set (FSS)** baseline using exact-rational convex-polygon clipping, following the conceptual framework discussed in Ingimundarson et al. (2005). This is **not a replication of their parallelotope approximation code**. For the **same affine constraints and matched sensor data**, this independent baseline and CIFC's multi-window LP found **exactly the same sensor-pair contradictions** across all 20 seeds in every tested condition. This is consistent with their proven mathematical equivalence, and does **not** demonstrate any advantage for CIFC over the standard set-membership formulation.
+
+- [Prior-art comparison, full table and mathematical equivalence](docs/set_membership_prior_art_comparison_2026-11-12.md)
+- [Independent rational geometric baseline](experiments/set_membership_fss_baseline.py)
+- [Fair matched-window comparison script](experiments/set_membership_comparison.py)
+- [Adversarial baseline agreement tests](tests/test_set_membership_fss.py)
+
+Run:
+
+~~~bash
+python -m pip install -r requirements-research.txt
+python -m experiments.set_membership_comparison
+~~~
+
+**Research integrity:** All figures are synthetic contradiction-edge counts, not sensor identification rates, and the project is neither novel nor validated merely because different implementations agree. The fixed Zenodo v0.1.0 remains unchanged.
+
+## Exact network-only inconsistency and Helly bound (research draft)
+
+The complete network LP can be infeasible **even though all pairwise multi-window LPs are feasible**. A [three-sensor, two-window example](docs/network_wide_helly_consistency_2026-11-12.md) constructs exact rational observations where every pair separately admits compatible response-time parameters but the network jointly yields a checkable **Farkas contradiction \`0 <= -1\`**.
+
+Each sensor's relaxed feasible shared-input integral set is convex in \(\mathbb R^W\). By **classical Helly's theorem**, any infeasible network relaxation has an inconsistent subset of at most \(\min(n,W+1)\) sensors. With **one window**, pairwise checks suffice for the relaxed network LP; with **two windows**, three sensors may be necessary. This is an **application of established convex geometry**, not a new theorem or evidence of broken hardware.
+
+- [Exact example and theorem proof](docs/network_wide_helly_consistency_2026-11-12.md)
+- [Three-sensor rational proof script](experiments/network_consistency_gap.py)
+- [Network LP and inclusion-minimal candidate conflict extraction](experiments/network_conflicts.py)
+- [Reproducible network scaling benchmark](experiments/network_scaling_benchmark.py)
+
+A [GitHub Actions run](https://github.com/sonii-shivansh/cycle-integral-sensor-certificates/actions/runs/43223985881) passed 34 tests and printed numerical timings for up to 48 sensors. **One network-consistency decision and a full pairwise contradiction graph are different outputs**; no apples-to-apples speed advantage has been established. The fixed Zenodo \`v0.1.0\` record is unchanged.
+
+## Certified multi-sensor network contradictions (research-only)
+
+The research branch now contains a **general multi-sensor Farkas proof extractor**. A floating-point dual solver proposes a candidate contradiction, but no result is called certified unless it is reconstructed and checked with **exact rational arithmetic**. The output is strictly \`certified_infeasible\` or \`not_certified\`; **not certified does not mean healthy or feasible**.
+
+- [Formal explanation and tests](docs/network_exact_farkas_2026-11-12.md)
+- [Network-wide rational certificate verifier](experiments/network_exact_certificate.py)
+- [Adversarial and randomized tests](tests/test_network_exact_certificate.py)
+
+The new checker verifies *finite relaxed LP infeasibility* for the represented data, **not physical sensor failure**. Exact certificates are established linear-programming mathematics, not a scientific novelty claim. A [GitHub Actions run](https://github.com/sonii-shivansh/cycle-integral-sensor-certificates/actions/runs/43226515287) passed 41 tests including these checks. It does not change the archived Zenodo \`v0.1.0\`.
+
+## Proof-carrying inclusion-minimal conflict hyperedges (research draft)
+
+The research branch can now try to construct an **inclusion-minimal inconsistent sensor-model subset**. It requires two independently checked exact-rational proofs: (1) a Farkas contradiction for the full subset, and (2) a **feasible rational parameter/input assignment for every single-sensor deletion**. It never calls a conflict minimal just because the numerical solver says it is.
+
+- [Mathematical proof, source and limitations](docs/certified_conflict_hyperedges_2026-11-12.md)
+- [Proof-carrying implementation](experiments/certified_conflict_hyperedges.py)
+- [Adversarial and tamper-resistance tests](tests/test_certified_conflict_hyperedges.py)
+- [Executable three-sensor minimal-conflict demonstration](experiments/certified_conflict_demo.py)
+
+The exact three-sensor example has **all pairwise subsets feasible**, but the full network contradicts its joint assumptions; each feasible deletion is independently witnessed. Possible outcomes are \`certified_minimal\`, \`certified_inconsistent\`, or \`not_certified\` (**not** “healthy”).
+
+This is **known model-based diagnosis / unsatisfiable-core mathematics**, not proof of a new invention. All certificates apply only to the specified finite relaxed LP and deterministic measurement assumptions; no physical hardware-failure conclusion is justified. Zenodo \`v0.1.0\` and the default branch remain unchanged.
+
+## Physical identifiability: electronic sensor bias versus local temperature
+
+An [exact two-world construction](docs/environmental_identifiability_2026-11-12.md) shows that a constant measurement bias \(b_i\) and a perfectly calibrated sensor experiencing a constant local temperature difference \(T_i(t)=T(t)+b_i\) can produce **identical readings at all times** under the same first-order physical model. No algorithm analyzing only those readings can universally distinguish these causes. This is a fundamental **identifiability limit**, not a new theorem or proof of defective hardware.
+
+The experimental [multi-window LP](experiments/multiwindow_lp.py) accepts optional **pre-calibrated** local-input bounds \`input_spread\`, adding \(L_w\gamma_i\) to each sensor's conservative integral-uncertainty radius. Increasing this bound can prevent spurious contradictions caused by environmental heterogeneity, **but can also hide real electronic biases**. It must be determined using independent physical evidence, never fitted after seeing the fault labels.
+
+- [Exact observational-equivalence proof, robust LP bound and physical calibration protocol](docs/environmental_identifiability_2026-11-12.md)
+- [Two-world simulation and drift comparison](experiments/environmental_ambiguity_study.py)
+- [Regression and exact-rational tests](tests/test_environmental_ambiguity.py)
+
+This is a controlled ambiguity/uncertainty stress test, not a validated instrument classifier, novel fault-diagnosis algorithm, or measured field false-alarm rate. Default \`input_spread=0\` preserves the earlier strict shared-input model; the fixed Zenodo \`v0.1.0\` is unchanged.
+
 ## Important findings and constraints
 
 - The certificate is **one-sided**: an alarm implies model inconsistency under the stated bounds, but no alarm cannot establish health.

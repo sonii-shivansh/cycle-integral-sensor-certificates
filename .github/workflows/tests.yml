@@ -16,8 +16,20 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install dependencies
-        run: python -m pip install -r requirements.txt
+        run: python -m pip install -r requirements-research.txt
       - name: Run regression tests
         run: python -m unittest discover -s tests -v
+      - name: Compare three methods on matching windows
+        run: python -m experiments.multiwindow_case_study
+      - name: Compare classical invariant-parameter set-membership baseline
+        run: python -m experiments.set_membership_comparison
+      - name: Verify exact network-only contradiction
+        run: python -m experiments.network_consistency_gap
+      - name: Verify proof-carrying minimal conflict hyperedge
+        run: python -m experiments.certified_conflict_demo
+      - name: Compare global and pairwise LP scaling
+        run: python -m experiments.network_scaling_benchmark
+      - name: Audit environmental input ambiguity and bounded mismatch
+        run: python -m experiments.environmental_ambiguity_study
       - name: Run documented demonstration
         run: python cycle_integral_fault_certificate.py
