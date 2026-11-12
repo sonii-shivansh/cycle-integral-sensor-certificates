@@ -86,8 +86,13 @@ class NetworkAudit:
     rows: tuple[NetworkRow, ...]
 
 
-def exact_network_rows(windows, max_tau, eps, curvature, sensor_indices=None):
+def exact_network_rows(windows, max_tau, eps, curvature, sensor_indices=None,
+                       input_spread=0):
     """Construct exact Ax<=b for tau_i (bounded) and J_w (unrestricted).
+
+    input_spread_i >= |T_i(t)-T(t)| is an independently justified bound
+    on local environmental differences, not sample measurement noise.
+    Its integrated uncertainty contributes L_w*input_spread_i to D_iw.
 
     Windows should be produced by exact_pairwise_certificate.exact_window(),
     which computes trapezoid integrals from actual represented samples using
@@ -105,6 +110,7 @@ def exact_network_rows(windows, max_tau, eps, curvature, sensor_indices=None):
     if M < 0:
         raise ValueError("negative response time bound")
     eb, kb = _vector(eps, n), _vector(curvature, n)
+    spread = _vector(input_spread, n)
     W = len(windows)
     dim = len(selected) + W
     rows = []
@@ -117,7 +123,7 @@ def exact_network_rows(windows, max_tau, eps, curvature, sensor_indices=None):
         L, h = _q(win.length), _q(win.max_gap)
         for local_index, i in enumerate(selected):
             I, delta = _q(win.integrals[i]), _q(win.increments[i])
-            D = L * eb[i] + L * h**2 * kb[i] / 12
+            D = L * (eb[i] + spread[i]) + L * h**2 * kb[i] / 12
 
             # I + tau_i*(delta - 2*eps_i) - D <= J_w
             a = [Fraction(0)] * dim
@@ -182,14 +188,18 @@ def _rational_linear_solve(matrix, rhs):
 
 
 def certify_network_infeasibility(
-    windows, max_tau, eps, curvature, sensor_indices=None
+    windows, max_tau, eps, curvature, sensor_indices=None,
+    input_spread=0
 ):
     """Return a rigorous exact contradiction, or explicitly NO CERTIFICATE.
 
     The candidate HiGHS dual is only a heuristic support selector. The return
     value 'not_certified' must NEVER be interpreted as proof of feasibility.
     """
-    rows = exact_network_rows(windows, max_tau, eps, curvature, sensor_indices)
+    rows = exact_network_rows(
+        windows, max_tau, eps, curvature, sensor_indices,
+        input_spread=input_spread
+    )
     dimension = len(rows[0].coefficients)
     count = len(rows)
 
