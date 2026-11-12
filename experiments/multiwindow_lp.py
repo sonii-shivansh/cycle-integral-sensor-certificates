@@ -15,7 +15,7 @@ from scipy.optimize import linprog
 
 @dataclass(frozen=True)
 class WindowSummary:
-    """One window's observed trapezoid integrals and endpoint increments."""
+    """One window's reference-centered trapezoid integrals and endpoint increments."""
     integrals: np.ndarray
     increments: np.ndarray
     length: float
@@ -49,8 +49,13 @@ def summarize_window(t, z):
     h = float(diffs[0])
     if not np.allclose(diffs, h, rtol=1e-10, atol=1e-12):
         raise ValueError("timestamps must be uniformly spaced")
+    # The physical integral constraints are invariant under a COMMON offset
+    # applied to every sensor within a window. Subtract it before integration
+    # to prevent catastrophic cancellation between large sensor integrals.
+    # The LP's shared input integral is implicitly centered by the same offset.
+    reference = float(z[0, 0])
     return WindowSummary(
-        integrals=np.asarray(np.trapezoid(z, t, axis=1), dtype=float),
+        integrals=np.asarray(np.trapezoid(z - reference, t, axis=1), dtype=float),
         increments=np.asarray(z[:, -1] - z[:, 0], dtype=float),
         length=float(t[-1] - t[0]),
         step=h,
