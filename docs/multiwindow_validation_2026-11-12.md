@@ -10,7 +10,7 @@ The core issue is that separately testing each window permits a different implic
 
 ## Derived necessary linear constraints
 
-For each sensor \(i\) and observation window \(w\) of length \(L_w\) and sample step \(h_w\), assume
+For each sensor \(i\) and observation window \(w\) of length \(L_w\), let \(h_w\) be the **largest actual gap between consecutive samples** (equal to the ordinary step for uniform sampling). Assume
 
 \[
 \tau_i \dot y_i+y_i=T(t), \quad 0\le \tau_i \le M;
@@ -69,6 +69,26 @@ I_{i,w}^{\mathrm{centered}}=\mathcal{T}_{h_w}(z_i-R_w)
 in exact arithmetic, and the unknown \(J_w\) is likewise replaced by \(J_w-R_w L_w\). This is a gauge transformation and **does not alter the mathematical LP feasibility problem**. It greatly improves floating-point conditioning in the exhibited case: the centered integrals are [1250,1200,1150], [2450,2380,2310] and [3200,3120,3040], and HiGHS finds a feasible \(\tau=(0,1,2)\). A regression test now checks this behavior.
 
 The original 20-seed-per-setting synthetic benchmark results are **unchanged** after this centering fix in an independent reconstruction. The fix does **not** make HiGHS a certified exact-infeasibility solver, does not eliminate all possible floating-point error, and cannot resolve inadequate or incorrect physical uncertainty bounds. Formal rejection requires rigorously verified infeasibility (for example, an exact rational Farkas certificate).
+
+## Time-grid validation: second confirmed numerical counterexample
+
+The previous \`summarize_window()\` check used \`np.allclose(np.diff(t), h_first, atol=1e-12)\` to decide whether the time grid was uniform. At sufficiently small sampling intervals, the absolute tolerance permits a grid whose largest gap is **six times** its first gap. Using \(L h_{\mathrm{first}}^2 K/12\) then underestimates the trapezoidal error.
+
+A concrete **healthy-model counterexample** uses \(s=2^{-44}\), times \(t=s[0,1,2,8]\), \(x=t/s\), response times \(\tau_1=0\) and \(\tau_2=s\), and responses
+\[
+y_1(t)=s^{-1}(x^3-9x^2+8x),\qquad
+y_2(t)=s^{-1}(x^3-12x^2+32x-32).
+\]
+They share exactly the same input \(T(t)=y_1(t)\) because \(s\,dy_2/dt+y_2=y_1\). Their endpoint increments both vanish. The sample values are representable in float64. With \(\epsilon=0\), \(M=s\), and a valid common curvature bound \(K=30/s^3\), the observed trapezoid difference is \(Q_{12}=-109\). The old first-gap formula gives a bound of only **40**, so a soundness predicate that accepted this grid could falsely flag healthy sensors.
+
+**Correction:** the composite trapezoid error on an arbitrary *increasing* grid is bounded by
+\[
+\frac{K}{12}\sum_k (t_{k+1}-t_k)^3
+\le \frac{K\,L}{12}\,(\max_k(t_{k+1}-t_k))^2.
+\]
+The new implementation uses the maximum step \(h_w\) and therefore also supports nonuniform grids conservatively. For the counterexample, its valid bound is **1440**, correctly containing the observed value. This preserves the original uniformly sampled formula whenever gaps are equal. The new regression test records this exact construction.
+
+The unit scale in this stress test is deliberately extreme to expose the logical gap in an absolute time-grid tolerance. It is **not** a physically realistic thermometer operating regime; its scientific purpose is to test the claimed mathematical soundness under accepted inputs.
 
 ## Experiment 1 — Changing time constant (two windows)
 
