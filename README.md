@@ -161,6 +161,19 @@ python -m experiments.set_membership_comparison
 
 **Research integrity:** All figures are synthetic contradiction-edge counts, not sensor identification rates, and the project is neither novel nor validated merely because different implementations agree. The fixed Zenodo v0.1.0 remains unchanged.
 
+## Exact network-only inconsistency and Helly bound (research draft)
+
+The complete network LP can be infeasible **even though all pairwise multi-window LPs are feasible**. A [three-sensor, two-window example](docs/network_wide_helly_consistency_2026-11-12.md) constructs exact rational observations where every pair separately admits compatible response-time parameters but the network jointly yields a checkable **Farkas contradiction \`0 <= -1\`**.
+
+Each sensor's relaxed feasible shared-input integral set is convex in \(\mathbb R^W\). By **classical Helly's theorem**, any infeasible network relaxation has an inconsistent subset of at most \(\min(n,W+1)\) sensors. With **one window**, pairwise checks suffice for the relaxed network LP; with **two windows**, three sensors may be necessary. This is an **application of established convex geometry**, not a new theorem or evidence of broken hardware.
+
+- [Exact example and theorem proof](docs/network_wide_helly_consistency_2026-11-12.md)
+- [Three-sensor rational proof script](experiments/network_consistency_gap.py)
+- [Network LP and inclusion-minimal candidate conflict extraction](experiments/network_conflicts.py)
+- [Reproducible network scaling benchmark](experiments/network_scaling_benchmark.py)
+
+A [GitHub Actions run](https://github.com/sonii-shivansh/cycle-integral-sensor-certificates/actions/runs/43223985881) passed 34 tests and printed numerical timings for up to 48 sensors. **One network-consistency decision and a full pairwise contradiction graph are different outputs**; no apples-to-apples speed advantage has been established. The fixed Zenodo \`v0.1.0\` record is unchanged.
+
 ## Important findings and constraints
 
 - The certificate is **one-sided**: an alarm implies model inconsistency under the stated bounds, but no alarm cannot establish health.
