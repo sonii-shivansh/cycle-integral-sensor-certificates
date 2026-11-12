@@ -53,6 +53,23 @@ A joint feasible parameter must satisfy the constraints from every window simult
 
 This is a standard set-membership idea. Stronger detection relative to *our own* weak single-window test does **not** establish superiority over published set-membership, observer, or interval-diagnosis methods.
 
+## Numerical conditioning: confirmed false-infeasibility counterexample
+
+The first implementation of \`summarize_window()\` integrated each sensor's **absolute** readings separately before subtracting them. This can catastrophically lose physically meaningful differences when the shared baseline is large, even when every input sample is **exactly representable** in binary64.
+
+**Exact healthy example:** let \(t=0,1,\ldots,200\), \(T(t)=2^{52}+t\), and three sensors with \(\tau=(0,1,2)\) seconds, \(M=3\), \(\epsilon_i=0\), \(K_i=0\). Their exact outputs are \(y_i(t)=2^{52}+t-\tau_i\), which satisfy \(\tau_i y_i'+y_i=T\) and are exactly representable integer-valued float64 samples. Divide the data into windows [0,50], [50,120], [120,200].
+
+An **independent reconstruction** of the original LP code with NumPy 2.3.5 and SciPy 1.17.0 returned **HiGHS status 2 (infeasible)** for the uncentered measurements, despite the known feasible parameters \((0,1,2)\). For the first window, the differences between individually integrated sensor totals erroneously become **64 and 64**, instead of the exact **50 and 50**. Subsequent windows similarly lose precision.
+
+**Correction on this branch:** subtract the **same** common per-window reference \(R_w=z_0(a_w)\) from every sensor **before** trapezoidal integration. Then
+\[
+I_{i,w}^{\mathrm{centered}}=\mathcal{T}_{h_w}(z_i-R_w)
+=I_{i,w}^{\mathrm{absolute}}-R_w L_w
+\]
+in exact arithmetic, and the unknown \(J_w\) is likewise replaced by \(J_w-R_w L_w\). This is a gauge transformation and **does not alter the mathematical LP feasibility problem**. It greatly improves floating-point conditioning in the exhibited case: the centered integrals are [1250,1200,1150], [2450,2380,2310] and [3200,3120,3040], and HiGHS finds a feasible \(\tau=(0,1,2)\). A regression test now checks this behavior.
+
+The original 20-seed-per-setting synthetic benchmark results are **unchanged** after this centering fix in an independent reconstruction. The fix does **not** make HiGHS a certified exact-infeasibility solver, does not eliminate all possible floating-point error, and cannot resolve inadequate or incorrect physical uncertainty bounds. Formal rejection requires rigorously verified infeasibility (for example, an exact rational Farkas certificate).
+
 ## Experiment 1 — Changing time constant (two windows)
 
 Use the common input \(T(t)=0\) and two sensors, with sensor 2 instantaneous and constant at zero. Sensor 1 starts at \(y_1(0)=10\) and evolves exponentially, with \(\tau_1=0.5\) seconds on \(t\in[0,0.5]\) and \(\tau_1=2.0\) seconds on \(t\in[0.5,1.5]\). Its response is continuous but changes dynamics at \(t=0.5\), violating the assumed *globally constant* \(\tau_1\). Each window separately has a valid first-order response. Set \(M=3\), \(\epsilon_1=\epsilon_2=0\), \(K_1=40\), \(K_2=0\), and \(h=0.01\) seconds; curvature bounds hold **within** each window.
