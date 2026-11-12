@@ -174,6 +174,16 @@ Each sensor's relaxed feasible shared-input integral set is convex in \(\mathbb 
 
 A [GitHub Actions run](https://github.com/sonii-shivansh/cycle-integral-sensor-certificates/actions/runs/43223985881) passed 34 tests and printed numerical timings for up to 48 sensors. **One network-consistency decision and a full pairwise contradiction graph are different outputs**; no apples-to-apples speed advantage has been established. The fixed Zenodo \`v0.1.0\` record is unchanged.
 
+## Certified multi-sensor network contradictions (research-only)
+
+The research branch now contains a **general multi-sensor Farkas proof extractor**. A floating-point dual solver proposes a candidate contradiction, but no result is called certified unless it is reconstructed and checked with **exact rational arithmetic**. The output is strictly \`certified_infeasible\` or \`not_certified\`; **not certified does not mean healthy or feasible**.
+
+- [Formal explanation and tests](docs/network_exact_farkas_2026-11-12.md)
+- [Network-wide rational certificate verifier](experiments/network_exact_certificate.py)
+- [Adversarial and randomized tests](tests/test_network_exact_certificate.py)
+
+The new checker verifies *finite relaxed LP infeasibility* for the represented data, **not physical sensor failure**. Exact certificates are established linear-programming mathematics, not a scientific novelty claim. A [GitHub Actions run](https://github.com/sonii-shivansh/cycle-integral-sensor-certificates/actions/runs/43226515287) passed 41 tests including these checks. It does not change the archived Zenodo \`v0.1.0\`.
+
 ## Important findings and constraints
 
 - The certificate is **one-sided**: an alarm implies model inconsistency under the stated bounds, but no alarm cannot establish health.
