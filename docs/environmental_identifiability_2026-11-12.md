@@ -129,6 +129,25 @@ The tests also contain an **exact Fraction-rational ramp construction** (not dep
 
 A strict-model alarm in World B indicates that the common-input assumption was violated. It is **not** evidence of broken hardware. Conversely, increasing \(\gamma\) may make an actual measurement bias in World A no longer detectable. This is the unavoidable **sensitivity versus modeling-robustness tradeoff**.
 
+### Verified synthetic comparison: strict common input vs independently bounded local differences
+
+[GitHub Actions run #43232845109](https://github.com/sonii-shivansh/cycle-integral-sensor-certificates/actions/runs/43232845109) **completed successfully**, including **58 regression tests** and the explicit 20-seed-per-condition comparison. It printed:
+
+| Drift °C/s | Pairwise contradictions, strict \(\gamma=0\) | Pairwise contradictions, \(\gamma_i=|b_i|\) | Network-inconsistent trials, strict | Network-inconsistent trials, allowed spatial spread |
+| ---: | ---: | ---: | ---: | ---: |
+| 0.0 | 180 | 0 | 20 / 20 | 0 / 20 |
+| 0.3 | 180 | 0 | 20 / 20 | 0 / 20 |
+| 0.6 | 180 | 0 | 20 / 20 | 0 / 20 |
+| 1.0 | 133 | 0 | 20 / 20 | 0 / 20 |
+
+The pairwise counts are **total contradiction edges summed across 20 trials**, with 15 sensor pairs possible per trial. These outcomes apply to **both** physical worlds because their observed arrays are exactly identical. The LP numbers are numerical solver outcomes checked by CI, not a formal exact certificate for every one of the 80 datasets.
+
+**Interpretation:**
+- Under a strict common input, the algorithm rejects all 80 biased *or local-temperature-shifted* constructed trials. This cannot identify which physical cause occurred.
+- When the independently specified allowance equals the actual local temperature differences, the LP accepts all 80 trials. The increased environmental tolerance also makes the *identical sensor-bias* cases no longer detectable by this test.
+- This **is not a field false-positive rate**, an improved detection accuracy result, or a proposed way to infer the correct \(\gamma_i\) from the same measured signals. It is an explicit demonstration of unavoidable observational ambiguity and the sensitivity/robustness tradeoff.
+- The tests include an **exact rational two-window ramp example** with a known feasible parameter/input witness under \(\gamma=(0,2,2)\), even though its strict common-input pairwise LP is exactly infeasible.
+
 ## 5. What would count as real physical validation?
 
 A useful controlled data collection protocol should **predefine** these independently observable quantities:
