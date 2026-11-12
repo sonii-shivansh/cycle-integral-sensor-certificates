@@ -197,6 +197,18 @@ The exact three-sensor example has **all pairwise subsets feasible**, but the fu
 
 This is **known model-based diagnosis / unsatisfiable-core mathematics**, not proof of a new invention. All certificates apply only to the specified finite relaxed LP and deterministic measurement assumptions; no physical hardware-failure conclusion is justified. Zenodo \`v0.1.0\` and the default branch remain unchanged.
 
+## Physical identifiability: electronic sensor bias versus local temperature
+
+An [exact two-world construction](docs/environmental_identifiability_2026-11-12.md) shows that a constant measurement bias \(b_i\) and a perfectly calibrated sensor experiencing a constant local temperature difference \(T_i(t)=T(t)+b_i\) can produce **identical readings at all times** under the same first-order physical model. No algorithm analyzing only those readings can universally distinguish these causes. This is a fundamental **identifiability limit**, not a new theorem or proof of defective hardware.
+
+The experimental [multi-window LP](experiments/multiwindow_lp.py) accepts optional **pre-calibrated** local-input bounds \`input_spread\`, adding \(L_w\gamma_i\) to each sensor's conservative integral-uncertainty radius. Increasing this bound can prevent spurious contradictions caused by environmental heterogeneity, **but can also hide real electronic biases**. It must be determined using independent physical evidence, never fitted after seeing the fault labels.
+
+- [Exact observational-equivalence proof, robust LP bound and physical calibration protocol](docs/environmental_identifiability_2026-11-12.md)
+- [Two-world simulation and drift comparison](experiments/environmental_ambiguity_study.py)
+- [Regression and exact-rational tests](tests/test_environmental_ambiguity.py)
+
+This is a controlled ambiguity/uncertainty stress test, not a validated instrument classifier, novel fault-diagnosis algorithm, or measured field false-alarm rate. Default \`input_spread=0\` preserves the earlier strict shared-input model; the fixed Zenodo \`v0.1.0\` is unchanged.
+
 ## Important findings and constraints
 
 - The certificate is **one-sided**: an alarm implies model inconsistency under the stated bounds, but no alarm cannot establish health.
