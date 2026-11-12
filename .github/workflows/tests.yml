@@ -21,5 +21,7 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Compare three methods on matching windows
         run: python -m experiments.multiwindow_case_study
+      - name: Compare classical invariant-parameter set-membership baseline
+        run: python -m experiments.set_membership_comparison
       - name: Run documented demonstration
         run: python cycle_integral_fault_certificate.py
