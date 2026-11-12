@@ -184,6 +184,19 @@ The research branch now contains a **general multi-sensor Farkas proof extractor
 
 The new checker verifies *finite relaxed LP infeasibility* for the represented data, **not physical sensor failure**. Exact certificates are established linear-programming mathematics, not a scientific novelty claim. A [GitHub Actions run](https://github.com/sonii-shivansh/cycle-integral-sensor-certificates/actions/runs/43226515287) passed 41 tests including these checks. It does not change the archived Zenodo \`v0.1.0\`.
 
+## Proof-carrying inclusion-minimal conflict hyperedges (research draft)
+
+The research branch can now try to construct an **inclusion-minimal inconsistent sensor-model subset**. It requires two independently checked exact-rational proofs: (1) a Farkas contradiction for the full subset, and (2) a **feasible rational parameter/input assignment for every single-sensor deletion**. It never calls a conflict minimal just because the numerical solver says it is.
+
+- [Mathematical proof, source and limitations](docs/certified_conflict_hyperedges_2026-11-12.md)
+- [Proof-carrying implementation](experiments/certified_conflict_hyperedges.py)
+- [Adversarial and tamper-resistance tests](tests/test_certified_conflict_hyperedges.py)
+- [Executable three-sensor minimal-conflict demonstration](experiments/certified_conflict_demo.py)
+
+The exact three-sensor example has **all pairwise subsets feasible**, but the full network contradicts its joint assumptions; each feasible deletion is independently witnessed. Possible outcomes are \`certified_minimal\`, \`certified_inconsistent\`, or \`not_certified\` (**not** “healthy”).
+
+This is **known model-based diagnosis / unsatisfiable-core mathematics**, not proof of a new invention. All certificates apply only to the specified finite relaxed LP and deterministic measurement assumptions; no physical hardware-failure conclusion is justified. Zenodo \`v0.1.0\` and the default branch remain unchanged.
+
 ## Important findings and constraints
 
 - The certificate is **one-sided**: an alarm implies model inconsistency under the stated bounds, but no alarm cannot establish health.
